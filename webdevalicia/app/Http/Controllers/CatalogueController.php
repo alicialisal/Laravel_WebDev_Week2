@@ -18,6 +18,8 @@ class CatalogueController extends Controller
 public function index(Request $request)
 {
     $category = $request->get('category', null); // Default to null if no category is selected
+    $sortField = $request->get('sort_field', 'title'); // Default sort by title
+    $sortOrder = $request->get('sort_order', 'asc'); // Default order is ascending
 
     // Fetch the catalog items
     $books = Books::query();
@@ -48,6 +50,12 @@ public function index(Request $request)
         ->merge($journals->items())
         ->merge($fyp->items());
 
+    if ($sortOrder === 'asc') {
+        $allItems = $allItems->sortBy($sortField);
+    } else {
+        $allItems = $allItems->sortByDesc($sortField);
+    }
+
     // Manually paginate the merged collection
     $currentPage = LengthAwarePaginator::resolveCurrentPage();
     $perPage = 20;
@@ -61,7 +69,7 @@ public function index(Request $request)
         ['path' => $request->url(), 'query' => $request->query()]
     );
 
-    return view('catalogues.index', compact('paginatedItems', 'category'));
+    return view('catalogues.index', compact('paginatedItems', 'category', 'sortField', 'sortOrder'));
 }
 
 }

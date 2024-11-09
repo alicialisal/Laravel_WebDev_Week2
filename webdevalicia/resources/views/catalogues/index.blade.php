@@ -32,13 +32,13 @@
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
                 <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Publisher</th>
+                    <th><a href="{{ route('catalogues.index', ['sort_field' => 'title', 'sort_order' => $sortField == 'title' && $sortOrder == 'asc' ? 'desc' : 'asc']) }}">Title</a></th>
+                    <th><a href="{{ route('catalogues.index', ['sort_field' => 'author', 'sort_order' => $sortField == 'author' && $sortOrder == 'asc' ? 'desc' : 'asc']) }}">Author</a></th>
+                    <th><a href="{{ route('catalogues.index', ['sort_field' => 'publisher', 'sort_order' => $sortField == 'publisher' && $sortOrder == 'asc' ? 'desc' : 'asc']) }}">Publisher</a></th>
                     <th>Published Date</th>
                     <th>Category</th>
-                    <th>Price (Rp)</th>
-                    <th>Stock</th>
+                    <th><a href="{{ route('catalogues.index', ['sort_field' => 'price', 'sort_order' => $sortField == 'price' && $sortOrder == 'asc' ? 'desc' : 'asc']) }}">Price (Rp.)</a></th>
+                    <th><a href="{{ route('catalogues.index', ['sort_field' => 'stock', 'sort_order' => $sortField == 'stock' && $sortOrder == 'asc' ? 'desc' : 'asc']) }}">Stock</a></th>
                     <th>Link</th>
                     
                 </tr>
@@ -60,9 +60,10 @@
         </table>
     
         <!-- Pagination links -->
-        <div class="pagination justify-content-center">
+        {{-- <div class="pagination justify-content-center">
             {{ $paginatedItems->links() }}
-        </div>
+        </div> --}}
+        {{ $paginatedItems->appends(['sort_field' => $sortField, 'sort_order' => $sortOrder])->links() }}
     </div>
     
 
