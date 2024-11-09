@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Journal extends Model
+class FinalYearProject extends Model
 {
     use HasFactory;
 
@@ -19,12 +19,8 @@ class Journal extends Model
         'author',
         'publisher',
         'description',
-        'price',
         'stock',
         'datePublished',
-        'volume',
-        'series',
-        'number',
         'onlineLink',
         'catalogue_type'
     ];

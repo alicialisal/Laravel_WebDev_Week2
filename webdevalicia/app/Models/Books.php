@@ -23,6 +23,10 @@ class Books extends Model
         'stock',
         'datePublished',
         'genre',
-        'onlineLink'
+        'onlineLink',
+        'catalogue_type'
     ];
+
+    public $timestamps = false;
+    public $updated_at = false;
 }
