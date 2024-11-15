@@ -2,6 +2,25 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Auth::routes();
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', function () {
+        return 'Welcome Admin';
+    })->name('admin.dashboard');
+});
+
+Route::middleware(['auth', 'role:librarian'])->group(function () {
+    Route::get('/librarian', function () {
+        return 'Welcome Librarian';
+    })->name('librarian.dashboard');
+});
 
 Route::get('/', function () {
     return view('welcome');
