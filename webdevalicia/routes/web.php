@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LibrarianController;
+use App\Http\Controllers\CatalogueController;
+use App\Http\Controllers\CollectionUpdateRequestController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -10,25 +15,61 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin', function () {
-        return 'Welcome Admin';
-    })->name('admin.dashboard');
+/*------------------------------------------
+--------------------------------------------
+All Normal Users Routes List
+--------------------------------------------
+--------------------------------------------*/
+Route::middleware(['auth', 'user-access:user'])->group(function () {
+  
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+});
+  
+/*------------------------------------------
+--------------------------------------------
+All Admin Routes List
+--------------------------------------------
+--------------------------------------------*/
+Route::middleware(['auth', 'user-access:admin'])->group(function () {
+    // Admin Dashboard Route
+    Route::get('/admin/home', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Librarian Create Route
+    Route::get('/admin/librarians/create', [LibrarianController::class, 'create'])->name('librarian.create');
+    Route::post('/admin/librarians/store', [LibrarianController::class, 'store'])->name('librarian.store');
+    Route::delete('/admin/librarians/{id}', [LibrarianController::class, 'destroy'])->name('librarian.destroy');
+    //Colletion Request
+    Route::get('/collection/requests', [CollectionUpdateRequestController::class, 'index'])->name('collection.requests.index');
+    Route::post('/collection/requests/{id}/approve', [CollectionUpdateRequestController::class, 'approve'])->name('collection.requests.approve');
+    Route::post('/collection/requests/{id}/reject', [CollectionUpdateRequestController::class, 'reject'])->name('collection.requests.reject');
 });
 
-Route::middleware(['auth', 'role:librarian'])->group(function () {
-    Route::get('/librarian', function () {
-        return 'Welcome Librarian';
-    })->name('librarian.dashboard');
+  
+/*------------------------------------------
+--------------------------------------------
+All Admin Routes List
+--------------------------------------------
+--------------------------------------------*/
+Route::middleware(['auth', 'user-access:librarian'])->group(function () {
+  
+    Route::get('/librarian/home', [LibrarianController::class, 'index'])->name('librarian.dashboard');
+    Route::get('/catalogues/index', [CatalogueController::class, 'index'])->name('catalogues.index');
+    Route::get('/catalogues/{id}/edit', [CatalogueController::class, 'edit'])->name('catalogues.edit');
+    Route::put('/catalogues/{id}', [CatalogueController::class, 'update'])->name('catalogues.update');
+    Route::post('/collection/update-request', [CollectionUpdateRequestController::class, 'store'])->name('collection.update-request.store');
 });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/unauthorized', function () {
+    return response('Unauthorized', 403);
+})->name('unauthorized');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::post('/notifications/{id}/mark-as-read', function ($id) {
+    $notification = \App\Models\Notification::findOrFail($id);
+    $notification->update(['is_read' => true]);
+
+    return redirect()->back()->with('success', 'Notification marked as read.');
+})->name('notifications.mark-as-read');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -37,3 +78,7 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Auth::routes();
+
+// Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

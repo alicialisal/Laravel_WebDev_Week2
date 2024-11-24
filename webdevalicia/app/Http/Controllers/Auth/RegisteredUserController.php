@@ -17,21 +17,10 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    // public function create(): View
-    // {
-    //     return view('auth.register');
-    // }
-
-    protected function create(array $data)
+    public function create(): View
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role' => $data['role'], // Simpan role
-        ]);
+        return view('auth.register');
     }
-
 
     /**
      * Handle an incoming registration request.
@@ -40,22 +29,36 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
-        event(new Registered($user));
+    // return redirect(RouteServiceProvider::HOME);
 
-        Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+    $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
+
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $user = Auth::user();
+        
+        // Custom redirection logic based on user role
+        if ($user->role == 'admin') {
+            return redirect()->route('admin.dashboard');
+        } elseif ($user->role == 'librarian') {
+            return redirect()->route('librarian.dashboard');
+        } else {
+            return redirect()->route('student.dashboard'); // Assuming there's a student dashboard
+        }
+    }
+
+    return back()->withErrors([
+        'email' => 'The provided credentials do not match our records.',
+    ]);
     }
 }
